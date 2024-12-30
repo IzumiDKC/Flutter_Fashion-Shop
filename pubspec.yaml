@@ -1,0 +1,36 @@
+name: fb88
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+
+
+
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.8
+  dio: ^4.0.1          # HTTP client
+  retrofit: ^2.0.0     # Retrofit adapter
+  json_annotation: ^4.8.0 # JSON
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_animate: ^4.0.0
+  flutter_lints: ^4.0.0
+  build_runner: ^2.2.0
+  retrofit_generator: ^2.0.0
+
+
+flutter:
+  uses-material-design: true
+  assets:
+  - res/images/
