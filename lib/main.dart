@@ -1,5 +1,7 @@
-import 'package:fb88/screens/product.dart';
-import 'package:fb88/screens/profile.dart';
+import 'package:fb88/screens/CartScreen.dart';
+import 'package:fb88/screens/ProductScreen.dart';
+import 'package:fb88/screens/ProfileScreen.dart';
+import 'package:fb88/screens/SearchScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -32,13 +34,20 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool _isLoggedIn = false; // Quản lý trạng thái đăng nhập.
 
-  final List<Widget> _screens = [
-    const ProductScreen(),
-    const ScreenTwo(),
-    const ScreenThree(),
-    const Profile(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const ProductScreen(),
+      const SearchScreen(),
+      const CartScreen(),
+      ProfileScreen(isLoggedIn: _isLoggedIn),
+    ];
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -46,43 +55,38 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _updateLoginStatus(bool status) {
+    setState(() {
+      _isLoggedIn = status;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: _screens.asMap().entries.map((entry) {
-          int index = entry.key;
-          Widget screen = entry.value;
-          return Offstage(
-            offstage: _currentIndex != index,
-            child: TickerMode(
-              enabled: _currentIndex == index,
-              child: screen,
-            ),
-          );
-        }).toList(),
-      ),
+      // Body sẽ là màn hình hiện tại theo _currentIndex
+      body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
-        selectedItemColor: Colors.deepPurple, // Màu khi chọn
-        unselectedItemColor: Colors.grey, // Màu khi không chọn
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: 'Favorites',
+            label: 'Trang Chủ',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: 'Search',
+            label: 'Tìm kiếm',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.shopping_cart),
+            label: 'Giỏ Hàng',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Hồ Sơ',
           ),
         ],
       ),
@@ -92,21 +96,6 @@ class _MainScreenState extends State<MainScreen> {
 
 
 
-class ScreenTwo extends StatelessWidget {
-  const ScreenTwo({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Favorites'),
-      ),
-      body: const Center(
-        child: Text('This is the Favorites screen!'),
-      ),
-    );
-  }
-}
 
 class ScreenThree extends StatelessWidget {
   const ScreenThree({super.key});
@@ -123,5 +112,3 @@ class ScreenThree extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import '../models/AuthModels.dart';
 import '../models/Brand.dart';
 import '../models/Product.dart';
 import '../models/Category.dart';
@@ -7,7 +8,7 @@ import '../models/Category.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://7546-2402-800-6318-920d-415d-ec3a-c360-3a8b.ngrok-free.app/",
+      baseUrl: "https://bed4-2402-800-6318-920d-5d77-510b-bea0-61b3.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
@@ -69,7 +70,6 @@ class ApiClient {
     }
   }
 
-  // Get all categories
   Future<List<Category>> getCategories() async {
     try {
       final response = await dio.get("api/categories");
@@ -82,7 +82,7 @@ class ApiClient {
   }
 
   // Login method
-  /*Future<void> login(LoginRequest request) async {
+  Future<void> login(LoginRequest request) async {
     try {
       final response = await dio.post("api/auth/login", data: request.toJson());
       // Handle login response
@@ -99,7 +99,7 @@ class ApiClient {
       throw Exception("Error during POST register request: $e");
     }
   }
-
+/*
   // Get user profile
   Future<UserProfile> getProfile(String userId) async {
     try {
