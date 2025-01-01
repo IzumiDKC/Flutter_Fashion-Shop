@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fb88/screens/CartScreen.dart';
 import '../api/api_client.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+  const ProductScreen({super.key, required this.onAddToCart, required this.cart});
+  final Function(dynamic) onAddToCart;
+  final List<dynamic> cart;
 
   @override
   _ProductScreenState createState() => _ProductScreenState();
@@ -46,59 +49,43 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('res/images/background.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SafeArea(
-            child: AppBar(
-              backgroundColor: Colors.transparent, //  appBar trong suốt
-              elevation: 0, // óng đổ
-              title: const Text(
-                'Fashion Shop',
-                style: TextStyle(
-                  color: Colors.redAccent,
-                  fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: const Text('Fashion Shop'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CartScreen(cart: widget.cart), // Truyền cart vào
                 ),
-              ),
-              centerTitle: true,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 50.0), // khoảng cách AppBar
-            child: Column(
-              children: [
-                if (isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: displayedProducts.length,
-                      itemBuilder: (context, index) {
-                        final product = displayedProducts[index];
-                        return ProductItem(product: product);
-                      },
-                    ),
-                  ),
-              ],
-            ),
+              );
+            },
           ),
         ],
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: displayedProducts.length,
+        itemBuilder: (context, index) {
+          final product = displayedProducts[index];
+          return ProductItem(
+            product: product,
+            onAddToCart: () => widget.onAddToCart(product),
+          );
+        },
       ),
     );
   }
 }
 
 class ProductItem extends StatelessWidget {
-  const ProductItem({super.key, required this.product});
+  const ProductItem({super.key, required this.product, required this.onAddToCart});
 
   final dynamic product;
+  final VoidCallback onAddToCart;
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +144,10 @@ class ProductItem extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_shopping_cart),
+            onPressed: onAddToCart,
           ),
         ],
       ),

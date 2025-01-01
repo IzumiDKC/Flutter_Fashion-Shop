@@ -35,16 +35,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isLoggedIn = false; // Quản lý trạng thái đăng nhập.
-
+  List<dynamic> _cart = [];
   late final List<Widget> _screens;
+
 
   @override
   void initState() {
     super.initState();
     _screens = [
-      const ProductScreen(),
+      ProductScreen(onAddToCart: _addToCart, cart: _cart),
       const SearchScreen(),
-      const CartScreen(),
+      CartScreen(cart: _cart),
       ProfileScreen(isLoggedIn: _isLoggedIn),
     ];
   }
@@ -59,6 +60,16 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _isLoggedIn = status;
     });
+  }
+
+  void _addToCart(dynamic product) {
+    setState(() {
+      _cart.add(product);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product['name']} đã được thêm vào giỏ hàng!')),
+    );
   }
 
   @override
