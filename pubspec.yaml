@@ -15,11 +15,13 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   cupertino_icons: ^1.0.8
   dio: ^4.0.1          # HTTP client
   retrofit: ^2.0.0     # Retrofit adapter
   json_annotation: ^4.8.0 # JSON
+  jwt_decoder: ^2.0.1
+
+
 
 dev_dependencies:
   flutter_test:

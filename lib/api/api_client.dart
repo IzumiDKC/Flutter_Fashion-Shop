@@ -8,17 +8,16 @@ import '../models/Category.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://bed4-2402-800-6318-920d-5d77-510b-bea0-61b3.ngrok-free.app/",
+      baseUrl: "https://fd33-2402-800-6319-94d5-5c9a-4133-4378-8bc6.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
   );
 
-  // Auth Interceptor: Adds Authorization header if token is available
+  static String? token; // Để lưu token
+
   static final authInterceptor = InterceptorsWrapper(
     onRequest: (options, handler) {
-      String? token =
-          ""; // Retrieve token from storage or global state
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
       }
@@ -81,15 +80,25 @@ class ApiClient {
     }
   }
 
-  // Login method
-  Future<void> login(LoginRequest request) async {
+  Future<Response> login(LoginRequest request) async {
     try {
       final response = await dio.post("api/auth/login", data: request.toJson());
-      // Handle login response
+
+      // Lấy token và userId từ phản hồi
+      token = response.data['token'];
+      String userId = response.data['userId']; // Giả sử userId có trong phản hồi
+
+      print("Login success: Token: $token, UserId: $userId");
+
+      return response;  // Trả về response chứa token và các thông tin khác
     } catch (e) {
       throw Exception("Error during POST login request: $e");
     }
   }
+
+
+
+
 
   // Register method
   Future<void> register(RegisterRequest request) async {
