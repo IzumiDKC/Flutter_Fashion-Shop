@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jwt_decoder/jwt_decoder.dart'; // Import thư viện jwt_decoder
 import 'LoginScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final bool isLoggedIn;
   final Function(bool) onLoginSuccess;
 
-  ProfileScreen({required this.isLoggedIn, required this.onLoginSuccess});
+  ProfileScreen({
+    required this.onLoginSuccess, required bool isLoggedIn, required String userName,
+  });
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -13,15 +16,42 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName = "";
+  bool isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.isLoggedIn) {
-      setState(() {
-        userName = "User đã đăng nhập"; // Can replace with actual username from token if available
-      });
+    _loadLoginStatus();
+  }
+
+  Future<void> _loadLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+
+    if (isLoggedIn) {
+      String? token = prefs.getString('token'); // Lấy token từ SharedPreferences
+      if (token != null) {
+        // Phân giải token để lấy username
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        setState(() {
+          userName = decodedToken['name'] ?? '';
+          print("username: $userName");
+        });
+      }
     }
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
+    await prefs.remove('token'); // Xóa token khi đăng xuất
+    widget.onLoginSuccess(false);
+    setState(() {
+      isLoggedIn = false;
+      userName = '';
+    });
   }
 
   @override
@@ -31,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text("Hồ Sơ"),
       ),
       body: Center(
-        child: widget.isLoggedIn
+        child: isLoggedIn
             ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -44,6 +74,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               "Chào mừng đến trang Hồ Sơ",
               style: TextStyle(fontSize: 18),
             ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _logout,
+              child: const Text("Đăng Xuất"),
+            ),
           ],
         )
             : Column(
@@ -55,13 +90,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                bool loginSuccess = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoginScreen(onLoginSuccess: widget.onLoginSuccess),
+                    builder: (context) => LoginScreen(onLoginSuccess: (bool) {}),
                   ),
-                );
+                ) ?? false;
+
+                if (loginSuccess) {
+                  _loadLoginStatus();  // Cập nhật lại trạng thái sau khi đăng nhập thành công
+                }
               },
               child: const Text("Đăng Nhập"),
             ),
@@ -71,4 +110,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
       const ProductScreen(),
       const SearchScreen(),
       const CartScreen(),
-      ProfileScreen(isLoggedIn: _isLoggedIn, onLoginSuccess: _updateLoginStatus),
+      ProfileScreen(isLoggedIn: _isLoggedIn, onLoginSuccess: _updateLoginStatus, userName: '',),
     ];
   }
 

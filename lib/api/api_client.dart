@@ -85,15 +85,25 @@ class ApiClient {
     try {
       final response = await dio.post("api/auth/login", data: request.toJson());
 
-      // Lấy token và userId từ phản hồi
+      // Kiểm tra phản hồi
+      print("Login response: ${response.data}");
+
+      if (response.data == null || !response.data.containsKey('token')) {
+        throw Exception("Token not found in response");
+      }
+
+      // Lưu token
       token = response.data['token'];
-      String userId = response.data['userId']; // Giả sử userId có trong phản hồi
+      print("Token saved: $token");
 
-      print("Login success: Token: $token, UserId: $userId");
-
-      return response;  // Trả về response chứa token và các thông tin khác
+      return response;
     } catch (e) {
-      throw Exception("Error during POST login request: $e");
+      if (e is DioError) {
+        print("DioError: ${e.response?.data ?? e.message}");
+      } else {
+        print("Login error: $e");
+      }
+      throw Exception("Error during login: $e");
     }
   }
 

@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 import 'package:fb88/api/api_client.dart';
 import 'package:fb88/models/AuthModels.dart';
 import 'package:fb88/screens/RegisterScreen.dart';
+
+import 'ProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(bool) onLoginSuccess;
@@ -31,16 +34,28 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Log the response to check for token
       print("Login response: ${response.data}");
-
       final token = response.data['token'];
       print("Token received: $token");
+
+      // Lưu trạng thái đăng nhập vào SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('token', token);
 
       // Update login status
       widget.onLoginSuccess(true);
       print("Login success, updating status to true");
 
       // Navigate back to ProfileScreen
-      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProfileScreen(
+            isLoggedIn: true,
+            onLoginSuccess: widget.onLoginSuccess, userName: '',
+          ),
+        ),git 
+      );
     } catch (e) {
       print("Login error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -52,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 if (username.isEmpty || password.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Vui lòng điền đầy đủ thông tin.")),
+                    const SnackBar(
+                        content: Text("Vui lòng điền đầy đủ thông tin.")),
                   );
                   return;
                 }
@@ -111,7 +126,8 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => RegisterScreen()),
                 );
               },
               child: const Text("Chưa có tài khoản? Đăng ký ngay"),

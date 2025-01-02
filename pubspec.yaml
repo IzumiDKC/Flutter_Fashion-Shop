@@ -14,7 +14,7 @@ dependencies:
 
   flutter:
     sdk: flutter
-
+  shared_preferences: ^2.3.4
   cupertino_icons: ^1.0.8
   dio: ^4.0.1          # HTTP client
   retrofit: ^2.0.0     # Retrofit adapter
