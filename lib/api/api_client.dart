@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:fb88/screens/RegisterScreen.dart';
 import '../models/AuthModels.dart';
 import '../models/Brand.dart';
 import '../models/Product.dart';
@@ -8,7 +9,7 @@ import '../models/Category.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://fd33-2402-800-6319-94d5-5c9a-4133-4378-8bc6.ngrok-free.app/",
+      baseUrl: "https://cdbb-2402-800-6319-94d5-5c9a-4133-4378-8bc6.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
