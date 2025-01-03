@@ -28,11 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final request = LoginRequest(username: username, password: password);
-
-      // Call the API to login
       final response = await ApiClient().login(request);
 
-      // Log the response to check for token
       print("Login response: ${response.data}");
       final token = response.data['token'];
       print("Token received: $token");
@@ -42,20 +39,18 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('token', token);
 
-      // Update login status
       widget.onLoginSuccess(true);
       print("Login success, updating status to true");
+      Navigator.of(context).pop(true);
 
-      // Navigate back to ProfileScreen
-      Navigator.pushReplacement(
+      /* Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => ProfileScreen(
             onLoginSuccess: widget.onLoginSuccess,
           ),
         ),
-      );
-
+      );*/
     } catch (e) {
       print("Login error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () {
                 final username = _usernameController.text.trim();
                 final password = _passwordController.text.trim();
-
                 if (username.isEmpty || password.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -116,7 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                   return;
                 }
-
                 login(username, password);
               },
               child: const Text("Đăng Nhập"),

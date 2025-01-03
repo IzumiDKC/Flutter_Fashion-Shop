@@ -46,7 +46,6 @@ class ApiClient {
   static void setupInterceptors() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        // Thêm token nếu có
         options.headers['Authorization'] = 'Bearer ${ApiClient.token}';
         return handler.next(options);
       },

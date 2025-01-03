@@ -4,7 +4,6 @@ import '../models/UserProfile.dart';
 
 class ProfileDetailScreen extends StatefulWidget {
   final String userId;
-
   ProfileDetailScreen({required this.userId});
 
   @override
@@ -43,9 +42,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   Text("Tên người dùng: ${user.userName}"),
                   Text("Email: ${user.email}"),
                   Text("Họ và tên: ${user.fullName}"),
-                  Text("Tuổi: ${user.age}"),
-                  Text("Địa chỉ: ${user.address}"),
-                  Text("Số điện thoại: ${user.phoneNumber}"),
+                  Text("Tuổi: ${user.age ?? 'N/A'}"),
+                  Text("Địa chỉ: ${user.address ?? 'Không có thông tin'}"),
+                  Text("Số điện thoại: ${user.phoneNumber ?? 'Không có thông tin'}"),
                 ],
               ),
             );
