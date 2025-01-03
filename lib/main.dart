@@ -45,14 +45,30 @@ class _MainScreenState extends State<MainScreen> {
       const ProductScreen(),
       const SearchScreen(),
       const CartScreen(),
-      ProfileScreen(isLoggedIn: _isLoggedIn, onLoginSuccess: _updateLoginStatus, userName: '',),
+      ProfileScreen(onLoginSuccess: _updateLoginStatus),
     ];
   }
 
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  void _onTabTapped(int index) async {
+    if (index == 3 && !_isLoggedIn) {
+      bool? loginSuccess = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(onLoginSuccess: _updateLoginStatus),
+        ),
+      );
+
+      if (loginSuccess == true) {
+        setState(() {
+          _currentIndex = 0; //Tra ve trang chu sau khi dang nhap thanh cong
+          _isLoggedIn = true;
+        });
+      }
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   void _updateLoginStatus(bool status) {
@@ -92,4 +108,3 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
