@@ -51,11 +51,11 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => ProfileScreen(
-            isLoggedIn: true,
-            onLoginSuccess: widget.onLoginSuccess, userName: '',
+            onLoginSuccess: widget.onLoginSuccess,
           ),
-        )
+        ),
       );
+
     } catch (e) {
       print("Login error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
