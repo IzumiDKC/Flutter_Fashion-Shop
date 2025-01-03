@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import '../models/UserProfile.dart';  // Đảm bảo import đúng model của bạn
+import '../api/api_Client.dart';
+import '../models/UserProfile.dart';
 
 class ProfileDetailScreen extends StatefulWidget {
   final String userId;
@@ -17,16 +17,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _profile = getProfile(widget.userId);  // Gọi API với userId
-  }
-
-  Future<UserProfile> getProfile(String userId) async {
-    try {
-      final response = await Dio().get("https://6c10-103-205-97-242.ngrok-free.app/api/account/profile/$userId");
-      return UserProfile.fromJson(response.data);
-    } catch (e) {
-      throw Exception("Lỗi khi GET thông tin người dùng: $e");
-    }
+    _profile = ApiClient().getProfile(widget.userId);
   }
 
   @override
@@ -52,9 +43,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                   Text("Tên người dùng: ${user.userName}"),
                   Text("Email: ${user.email}"),
                   Text("Họ và tên: ${user.fullName}"),
-                  Text("Tuổi: ${user.age}"),
-                  Text("Địa chỉ: ${user.address}"),
-                  Text("Số điện thoại: ${user.phoneNumber}"),
+                  Text("Tuổi: ${user.age ?? 'N/A'}"),
+                  Text("Địa chỉ: ${user.address ?? 'Không có thông tin'}"),
+                  Text("Số điện thoại: ${user.phoneNumber ?? 'Không có thông tin'}"),
                 ],
               ),
             );

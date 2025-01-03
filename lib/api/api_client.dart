@@ -10,7 +10,7 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://6c10-103-205-97-242.ngrok-free.app/",
+      baseUrl: "https://2136-14-169-18-85.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
@@ -44,8 +44,21 @@ class ApiClient {
   );
 
   static void setupInterceptors() {
-    dio.interceptors.add(authInterceptor);
-    dio.interceptors.add(loggingInterceptor);
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        // Thêm token nếu có
+        options.headers['Authorization'] = 'Bearer ${ApiClient.token}';
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        print('Response: ${response.data}');
+        return handler.next(response);
+      },
+      onError: (error, handler) {
+        print('Error: ${error.message}');
+        return handler.next(error);
+      },
+    ));
   }
 
   Future<List<Product>> getProducts() async {
@@ -115,7 +128,7 @@ class ApiClient {
 
   Future<UserProfile> getProfile(String userId) async {
     try {
-      final response = await dio.get("/api/account/profile/$userId");  // Sử dụng baseUrl tự động
+      final response = await dio.get("/api/account/profile/$userId");
       return UserProfile.fromJson(response.data);
     } catch (e) {
       print("Lỗi khi GET thông tin người dùng: $e");

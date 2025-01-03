@@ -34,7 +34,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _isLoggedIn = false;
+  bool _isLoggedIn = true;
+
+  List<dynamic> _cart = [];
 
   late final List<Widget> _screens;
 
@@ -42,17 +44,45 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const ProductScreen(),
+      ProductScreen(onAddToCart: _addToCart, cart: _cart),
       const SearchScreen(),
-      const CartScreen(),
-      ProfileScreen(isLoggedIn: _isLoggedIn, onLoginSuccess: _updateLoginStatus, userName: '',),
+      CartScreen(cart: _cart),
+      ProfileScreen(onLoginSuccess: _updateLoginStatus),
     ];
   }
 
-  void _onTabTapped(int index) {
+  void _addToCart(dynamic product) {
     setState(() {
-      _currentIndex = index;
+      _cart.add(product);
+      product['quantity'] = 1;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product['name']} đã được thêm vào giỏ hàng!')),
+    );
+  }
+
+
+  void _onTabTapped(int index) async {
+    if (index == 3 && !_isLoggedIn) {
+      bool? loginSuccess = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(onLoginSuccess: _updateLoginStatus),
+        ),
+      );
+
+      if (loginSuccess == true) {
+        setState(() {
+          _currentIndex = 0; //Tra ve trang chu sau khi dang nhap thanh cong
+          _isLoggedIn = true;
+        });
+      }
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 
   void _updateLoginStatus(bool status) {

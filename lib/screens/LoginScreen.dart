@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
+
   Future<void> login(String username, String password) async {
     setState(() {
       _isLoading = true;
@@ -47,15 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
       print("Login success, updating status to true");
 
       // Navigate back to ProfileScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfileScreen(
-            isLoggedIn: true,
-            onLoginSuccess: widget.onLoginSuccess, userName: '',
-          ),
-        )
-      );
+      Navigator.of(context).pop(true);
+
     } catch (e) {
       print("Login error: $e");
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fb88/screens/CartScreen.dart';
 import '../api/api_client.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({super.key});
+  const ProductScreen({super.key, required this.onAddToCart, required this.cart});
+  final Function(dynamic) onAddToCart;
+  final List<dynamic> cart;
 
   @override
   _ProductScreenState createState() => _ProductScreenState();
@@ -68,6 +71,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
               centerTitle: true,
+
             ),
           ),
           Padding(
@@ -82,7 +86,8 @@ class _ProductScreenState extends State<ProductScreen> {
                       itemCount: displayedProducts.length,
                       itemBuilder: (context, index) {
                         final product = displayedProducts[index];
-                        return ProductItem(product: product);
+                        return ProductItem(product: product,
+                          onAddToCart: () => widget.onAddToCart(product),);
                       },
                     ),
                   ),
@@ -96,9 +101,10 @@ class _ProductScreenState extends State<ProductScreen> {
 }
 
 class ProductItem extends StatelessWidget {
-  const ProductItem({super.key, required this.product});
+  const ProductItem({super.key, required this.product, required this.onAddToCart});
 
   final dynamic product;
+  final VoidCallback onAddToCart;
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +163,10 @@ class ProductItem extends StatelessWidget {
                   ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_shopping_cart),
+            onPressed: onAddToCart,
           ),
         ],
       ),
