@@ -1,9 +1,9 @@
-import 'package:fb88/screens/CartScreen.dart';
-import 'package:fb88/screens/ProductScreen.dart';
-import 'package:fb88/screens/ProfileScreen.dart';
-import 'package:fb88/screens/SearchScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fb88/screens/ProductScreen.dart';
+import 'package:fb88/screens/SearchScreen.dart';
+import 'package:fb88/screens/CartScreen.dart';
+import 'package:fb88/screens/ProfileScreen.dart';
+import 'package:fb88/screens/LoginScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Animate Demo',
+      title: 'Flutter App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -34,7 +34,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _isLoggedIn = false; // Quản lý trạng thái đăng nhập.
+  bool _isLoggedIn = false;
 
   late final List<Widget> _screens;
 
@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
       const ProductScreen(),
       const SearchScreen(),
       const CartScreen(),
-      ProfileScreen(isLoggedIn: _isLoggedIn),
+      ProfileScreen(isLoggedIn: _isLoggedIn, onLoginSuccess: _updateLoginStatus),
     ];
   }
 
@@ -64,7 +64,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Body sẽ là màn hình hiện tại theo _currentIndex
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -94,21 +93,3 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-
-
-
-class ScreenThree extends StatelessWidget {
-  const ScreenThree({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
-      body: const Center(
-        child: Text('This is the Search screen!'),
-      ),
-    );
-  }
-}
