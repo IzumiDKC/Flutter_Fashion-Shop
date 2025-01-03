@@ -18,8 +18,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   dio: ^4.0.1          # HTTP client
   retrofit: ^2.0.0     # Retrofit adapter
-  json_annotation: ^4.8.0 # JSON
+  json_annotation: ^4.5.0 # JSON
   jwt_decoder: ^2.0.1
+  build_runner: ^2.2.0
+  json_serializable: ^6.0.0
 
 
 
@@ -28,7 +30,6 @@ dev_dependencies:
     sdk: flutter
   flutter_animate: ^4.0.0
   flutter_lints: ^4.0.0
-  build_runner: ^2.2.0
   retrofit_generator: ^2.0.0
 
 

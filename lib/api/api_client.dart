@@ -5,17 +5,18 @@ import '../models/AuthModels.dart';
 import '../models/Brand.dart';
 import '../models/Product.dart';
 import '../models/Category.dart';
+import '../models/UserProfile.dart';
 
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://cdbb-2402-800-6319-94d5-5c9a-4133-4378-8bc6.ngrok-free.app/",
+      baseUrl: "https://6c10-103-205-97-242.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
   );
 
-  static String? token; // Để lưu token
+  static String? token;
 
   static final authInterceptor = InterceptorsWrapper(
     onRequest: (options, handler) {
@@ -26,7 +27,6 @@ class ApiClient {
     },
   );
 
-  // Logging Interceptor: Logs requests and responses
   static final loggingInterceptor = InterceptorsWrapper(
     onRequest: (options, handler) {
       print('Request: ${options.method} ${options.uri}');
@@ -85,14 +85,12 @@ class ApiClient {
     try {
       final response = await dio.post("api/auth/login", data: request.toJson());
 
-      // Kiểm tra phản hồi
       print("Login response: ${response.data}");
 
       if (response.data == null || !response.data.containsKey('token')) {
         throw Exception("Token not found in response");
       }
 
-      // Lưu token
       token = response.data['token'];
       print("Token saved: $token");
 
@@ -107,11 +105,6 @@ class ApiClient {
     }
   }
 
-
-
-
-
-  // Register method
   Future<void> register(RegisterRequest request) async {
     try {
       await dio.post("api/auth/register", data: request.toJson());
@@ -119,19 +112,21 @@ class ApiClient {
       throw Exception("Error during POST register request: $e");
     }
   }
-/*
-  // Get user profile
+
   Future<UserProfile> getProfile(String userId) async {
     try {
-      final response = await dio.get("api/account/profile/$userId");
+      final response = await dio.get("/api/account/profile/$userId");  // Sử dụng baseUrl tự động
       return UserProfile.fromJson(response.data);
     } catch (e) {
-      throw Exception("Error during GET profile request: $e");
+      print("Lỗi khi GET thông tin người dùng: $e");
+      throw Exception("Lỗi khi GET thông tin người dùng: $e");
     }
   }
 
+
+
   // Update user profile
-  Future<void> updateProfile(
+  /*Future<void> updateProfile(
       String userId, UpdatedProfile updatedProfile) async {
     try {
       await dio.put("api/account/update-profile/$userId",

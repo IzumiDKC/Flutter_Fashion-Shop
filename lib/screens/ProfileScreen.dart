@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart'; // Import thư viện jwt_decoder
 import 'LoginScreen.dart';
+import 'ProfileDetailScreen.dart'; // Import màn hình ProfileDetailScreen
 
 class ProfileScreen extends StatefulWidget {
   final Function(bool) onLoginSuccess;
@@ -16,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName = "";
+  String userId = ""; // Thêm biến userId
   bool isLoggedIn = false;
 
   @override
@@ -33,11 +35,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (isLoggedIn) {
       String? token = prefs.getString('token'); // Lấy token từ SharedPreferences
       if (token != null) {
-        // Phân giải token để lấy username
+        // Phân giải token để lấy username và userId
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         setState(() {
           userName = decodedToken['name'] ?? '';
-          print("username: $userName");
+          userId = decodedToken['userId'] ?? '';  // Giả sử 'userId' là một phần trong token
+          print("username: $userName, userId: $userId");
         });
       }
     }
@@ -51,6 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       isLoggedIn = false;
       userName = '';
+      userId = '';  // Xóa userId khi đăng xuất
     });
   }
 
@@ -73,6 +77,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Text(
               "Chào mừng đến trang Hồ Sơ",
               style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // Điều hướng tới ProfileDetailScreen và truyền userId từ token
+                final profile = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileDetailScreen(userId: userId),  // Truyền userId đã lấy
+                  ),
+                );
+              },
+              child: const Text("Xem Thông Tin"),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoggedIn: true,
             onLoginSuccess: widget.onLoginSuccess, userName: '',
           ),
-        ),git 
+        )
       );
     } catch (e) {
       print("Login error: $e");
