@@ -10,7 +10,7 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://2746-2402-800-6319-94d5-34e2-689-d864-81b8.ngrok-free.app/",
+      baseUrl: "https://5427-2402-800-6319-94d5-ed76-d186-371f-2cf2.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),

@@ -34,7 +34,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _isLoggedIn = false;
+  bool _isLoggedIn = true;
 
   late final List<Widget> _screens;
 
@@ -60,7 +60,7 @@ class _MainScreenState extends State<MainScreen> {
 
       if (loginSuccess == true) {
         setState(() {
-          _currentIndex = 0; //Tra ve trang chu sau khi dang nhap thanh cong
+          _currentIndex = 0;
           _isLoggedIn = true;
         });
       }

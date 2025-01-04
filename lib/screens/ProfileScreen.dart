@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:jwt_decoder/jwt_decoder.dart'; // Import thư viện jwt_decoder
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'LoginScreen.dart';
 import 'ProfileDetailScreen.dart';
 
 class ProfileOptionCard extends StatelessWidget {
   final String title;
   final String description;
+  final IconData icon;
   final VoidCallback onClick;
 
   const ProfileOptionCard({
     required this.title,
     required this.description,
+    required this.icon,
     required this.onClick,
     Key? key,
   }) : super(key: key);
@@ -24,17 +26,25 @@ class ProfileOptionCard extends StatelessWidget {
         onTap: onClick,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge, // Updated from headline6 to titleLarge
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                style: Theme.of(context).textTheme.titleLarge, // Updated from headline6 to titleLarge
+              Icon(icon, size: 32, color: Theme.of(context).primaryColor),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -110,14 +120,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Xin chào, $userName!",
-                style: Theme.of(context).textTheme.titleLarge,
+              Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: Text(
+                        userName.isNotEmpty ? userName[0] : "?",
+                        style: const TextStyle(fontSize: 32, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Xin chào, $userName!",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ProfileOptionCard(
                 title: "Thông tin cá nhân",
                 description: "Xem và cập nhật thông tin của bạn.",
+                icon: Icons.person,
                 onClick: () {
                   Navigator.push(
                     context,
@@ -130,30 +156,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ProfileOptionCard(
                 title: "Lịch sử đơn hàng",
                 description: "Xem lại các đơn hàng đã đặt.",
-                onClick: () {
-                  // TODO: Chuyển sang màn hình lịch sử đơn hàng
-                },
+                icon: Icons.history,
+                onClick: () {},
               ),
               ProfileOptionCard(
                 title: "Xếp hạng thành viên",
                 description: "Xem xếp hạng tiêu dùng của bạn.",
-                onClick: () {
-                  // TODO: Chuyển sang màn hình xếp hạng thành viên
-                },
+                icon: Icons.star,
+                onClick: () {},
               ),
               ProfileOptionCard(
                 title: "Phương thức thanh toán",
                 description: "Quản lý các phương thức thanh toán.",
-                onClick: () {
-                  // TODO: Chuyển sang màn hình phương thức thanh toán
-                },
+                icon: Icons.payment,
+                onClick: () {},
               ),
               ProfileOptionCard(
                 title: "Trung tâm hỗ trợ",
                 description: "Liên hệ hỗ trợ nếu cần giúp đỡ.",
-                onClick: () {
-                  // TODO: Chuyển sang màn hình trung tâm hỗ trợ
-                },
+                icon: Icons.help,
+                onClick: () {},
               ),
               const SizedBox(height: 24),
               Align(
@@ -162,8 +184,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: _logout,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
+                    backgroundColor: Colors.deepPurpleAccent,
                   ),
-                  child: const Text("Đăng xuất"),
+                  child: const Text(
+                    "Đăng xuất",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.white
+                    ),
+                  ),
                 ),
               ),
             ],

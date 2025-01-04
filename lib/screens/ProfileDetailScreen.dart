@@ -31,26 +31,71 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Lỗi: ${snapshot.error}'));
+            return Center(
+              child: Text(
+                'Lỗi: ${snapshot.error}',
+                style: TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            );
           } else if (snapshot.hasData) {
             final user = snapshot.data!;
             return Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: ListView(
                 children: [
-                  Text("Tên người dùng: ${user.userName}"),
-                  Text("Email: ${user.email}"),
-                  Text("Họ và tên: ${user.fullName}"),
-                  Text("Tuổi: ${user.age ?? 'N/A'}"),
-                  Text("Địa chỉ: ${user.address ?? 'Không có thông tin'}"),
-                  Text("Số điện thoại: ${user.phoneNumber ?? 'Không có thông tin'}"),
+                  Center(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: Text(
+                            user.userName.isNotEmpty ? user.userName[0] : "?",
+                            style: const TextStyle(fontSize: 40, color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          user.userName,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildProfileDetailRow("Họ và Tên", user.fullName),
+                  _buildProfileDetailRow("Email", user.email),
+                  _buildProfileDetailRow("Tuổi", user.age?.toString() ?? "N/A"),
+                  _buildProfileDetailRow("Địa chỉ", user.address ?? "Không có thông tin"),
+                  _buildProfileDetailRow("Số điện thoại", user.phoneNumber ?? "Không có thông tin"),
                 ],
               ),
             );
           }
           return const Center(child: Text("Không có dữ liệu"));
         },
+      ),
+    );
+  }
+
+  Widget _buildProfileDetailRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "$title:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
       ),
     );
   }
