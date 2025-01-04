@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:fb88/screens/RegisterScreen.dart';
 import '../models/AuthModels.dart';
 import '../models/Brand.dart';
+import '../models/Order.dart';
 import '../models/Product.dart';
 import '../models/Category.dart';
 import '../models/UserProfile.dart';
@@ -10,7 +11,7 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://5427-2402-800-6319-94d5-ed76-d186-371f-2cf2.ngrok-free.app/",
+      baseUrl: "https://6c67-2402-800-6319-94d5-ed76-d186-371f-2cf2.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
@@ -135,18 +136,18 @@ class ApiClient {
     }
   }
 
-
-
-  // Update user profile
-  /*Future<void> updateProfile(
-      String userId, UpdatedProfile updatedProfile) async {
+  Future<List<Order>> getUserOrders(String userId) async {
     try {
-      await dio.put("api/account/update-profile/$userId",
-          data: updatedProfile.toJson());
+      final response = await dio.get("api/Orders/user-orders/$userId");
+      List<Order> orders =
+      (response.data as List).map((e) => Order.fromJson(e)).toList();
+      return orders;
     } catch (e) {
-      throw Exception("Error during PUT profile update request: $e");
+      throw Exception("Error during GET user orders request: $e");
     }
   }
+
+  /*
 
   // Get products on sale
   Future<List<Product>> getProductsOnSale() async {
@@ -161,17 +162,18 @@ class ApiClient {
   }
 
   // Get user orders
-  Future<List<Order>> getUserOrders(String userId) async {
+
+
+
+  Future<void> updateProfile(
+      String userId, UpdatedProfile updatedProfile) async {
     try {
-      final response = await dio.get("api/Orders/user-orders/$userId");
-      List<Order> orders =
-          (response.data as List).map((e) => Order.fromJson(e)).toList();
-      return orders;
+      await dio.put("api/account/update-profile/$userId",
+          data: updatedProfile.toJson());
     } catch (e) {
-      throw Exception("Error during GET user orders request: $e");
+      throw Exception("Error during PUT profile update request: $e");
     }
   }
-
   // Create order
   Future<Order> createOrder(CreateOrderRequest createOrderRequest) async {
     try {
@@ -185,20 +187,16 @@ class ApiClient {
 }*/
 
   void main() {
-    // Initialize Dio interceptors
     ApiClient.setupInterceptors();
 
-    // Example usage of API methods
     final apiClient = ApiClient();
 
-    // Get products
     apiClient.getProducts().then((products) {
       print('Fetched Products: $products');
     }).catchError((e) {
       print('Request failed: $e');
     });
 
-    // Get categories
     apiClient.getCategories().then((categories) {
       print('Fetched Categories: $categories');
     }).catchError((e) {

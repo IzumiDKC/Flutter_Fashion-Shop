@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'HistoryOrderScreen.dart';
 import 'LoginScreen.dart';
 import 'ProfileDetailScreen.dart';
 
@@ -157,8 +158,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: "Lịch sử đơn hàng",
                 description: "Xem lại các đơn hàng đã đặt.",
                 icon: Icons.history,
-                onClick: () {},
+                onClick: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HistoryOrderScreen(userId: userId),
+                    ),
+                  );
+                },
               ),
+
               ProfileOptionCard(
                 title: "Xếp hạng thành viên",
                 description: "Xem xếp hạng tiêu dùng của bạn.",
