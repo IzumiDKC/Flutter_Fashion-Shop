@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fb88/screens/CartScreen.dart';
 import '../api/api_client.dart';
 
 class ProductScreen extends StatefulWidget {

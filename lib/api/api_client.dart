@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:fb88/screens/RegisterScreen.dart';
+import 'package:fb88/models/OrderDetail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/AuthModels.dart';
 import '../models/Brand.dart';
+import '../models/CreateOrderRequest.dart';
+import '../models/Order.dart';
 import '../models/Product.dart';
 import '../models/Category.dart';
 import '../models/UserProfile.dart';
@@ -10,19 +12,23 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://2136-14-169-18-85.ngrok-free.app/",
+      baseUrl: "https://bb86-14-169-18-85.ngrok-free.app/",
       connectTimeout: 5000,
       receiveTimeout: 3000,
     ),
   );
 
-  static String? token;
-
   static final authInterceptor = InterceptorsWrapper(
-    onRequest: (options, handler) {
+    onRequest: (options, handler) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token'); // Lấy token từ SharedPreferences
+      print("Token lấy từ SharedPreferences trong API: $token");
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
+      } else {
+        print("Token không tồn tại trong SharedPreferences");
       }
+
       return handler.next(options);
     },
   );
@@ -44,21 +50,8 @@ class ApiClient {
   );
 
   static void setupInterceptors() {
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        // Thêm token nếu có
-        options.headers['Authorization'] = 'Bearer ${ApiClient.token}';
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print('Response: ${response.data}');
-        return handler.next(response);
-      },
-      onError: (error, handler) {
-        print('Error: ${error.message}');
-        return handler.next(error);
-      },
-    ));
+    dio.interceptors.add(authInterceptor);
+    dio.interceptors.add(loggingInterceptor);
   }
 
   Future<List<Product>> getProducts() async {
@@ -104,8 +97,12 @@ class ApiClient {
         throw Exception("Token not found in response");
       }
 
-      token = response.data['token'];
+      String token = response.data['token'];
       print("Token saved: $token");
+
+      // Lưu token vào SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
 
       return response;
     } catch (e) {
@@ -135,6 +132,64 @@ class ApiClient {
       throw Exception("Lỗi khi GET thông tin người dùng: $e");
     }
   }
+
+  // Create order
+  Future<Order> createOrder(CreateOrderRequest createOrderRequest) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    try {
+      final jsonBody = createOrderRequest.toJson();
+      print('Dữ liệu gửi đến server: $jsonBody');
+
+      final response = await dio.post(
+        "api/Orders/create",
+        data: jsonBody,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      // Kiểm tra trạng thái HTTP
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data;
+        print('Response từ server: $data');
+
+        if (data.containsKey('id')) {
+          return Order(
+            id: data['id'],
+            orderDate: '',
+            totalPrice: createOrderRequest.totalPrice,
+            shippingAddress: createOrderRequest.shippingAddress,
+            status: 'Pending', // Giá trị mặc định
+            notes: createOrderRequest.notes,
+            orderDetails: createOrderRequest.orderDetails.map((e) {
+              return OrderDetail(
+                name: '', // Giá trị mặc định
+                originalPrice: 0.0,
+                finalPrice: 0.0,
+                quantity: e.quantity,
+              );
+            }).toList(),
+          );
+        } else {
+          throw Exception('Server response missing required fields.');
+        }
+      }
+
+
+      print('Response từ server: ${response.data}');
+      return Order.fromJson(response.data);
+    } catch (e) {
+      print('Lỗi khi gửi request: $e');
+      throw Exception("Error during POST order request: $e");
+    }
+  }
+
+
+
 
 
 
@@ -171,21 +226,12 @@ class ApiClient {
     } catch (e) {
       throw Exception("Error during GET user orders request: $e");
     }
-  }
+  }*/
 
-  // Create order
-  Future<Order> createOrder(CreateOrderRequest createOrderRequest) async {
-    try {
-      final response = await dio.post("api/Orders/create",
-          data: createOrderRequest.toJson());
-      return Order.fromJson(response.data);
-    } catch (e) {
-      throw Exception("Error during POST order request: $e");
-    }
-  }
-}*/
+
 
   void main() {
+
     // Initialize Dio interceptors
     ApiClient.setupInterceptors();
 

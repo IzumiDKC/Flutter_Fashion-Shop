@@ -53,14 +53,23 @@ class _MainScreenState extends State<MainScreen> {
 
   void _addToCart(dynamic product) {
     setState(() {
-      _cart.add(product);
-      product['quantity'] = 1;
+      final existingProduct = _cart.firstWhere(
+            (item) => item['id'] == product['id'],
+        orElse: () => null,
+      );
+      if (existingProduct != null) {
+        existingProduct['quantity'] += 1;
+      } else {
+        product['quantity'] = 1;
+        _cart.add(product);
+      }
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${product['name']} đã được thêm vào giỏ hàng!')),
     );
   }
+
 
 
   void _onTabTapped(int index) async {

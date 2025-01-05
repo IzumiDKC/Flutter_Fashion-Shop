@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'package:shared_preferences/shared_preferences.dart'; 
 import 'package:fb88/api/api_client.dart';
 import 'package:fb88/models/AuthModels.dart';
 import 'package:fb88/screens/RegisterScreen.dart';
 
-import 'ProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(bool) onLoginSuccess;
@@ -42,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('token', token);
+      print("Token saved to SharedPreferences: $token");
 
       // Update login status
       widget.onLoginSuccess(true);
