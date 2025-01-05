@@ -36,18 +36,39 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isLoggedIn = true;
 
+  List<dynamic> _cart = [];
+
   late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
     _screens = [
-      const ProductScreen(),
-      const SearchScreen(),
-      const CartScreen(),
+      ProductScreen(onAddToCart: _addToCart, cart: _cart),
+      SearchScreen(onAddToCart: _addToCart),
+      CartScreen(cart: _cart),
       ProfileScreen(onLoginSuccess: _updateLoginStatus),
     ];
   }
+  void _addToCart(dynamic product) {
+    setState(() {
+      final existingProduct = _cart.firstWhere(
+            (item) => item['id'] == product['id'],
+        orElse: () => null,
+      );
+      if (existingProduct != null) {
+        existingProduct['quantity'] += 1;
+      } else {
+        product['quantity'] = 1;
+        _cart.add(product);
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${product['name']} đã được thêm vào giỏ hàng!')),
+    );
+  }
+
 
   void _onTabTapped(int index) async {
     if (index == 3 && !_isLoggedIn) {

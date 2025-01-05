@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../api/api_Client.dart';
 import '../models/UserProfile.dart';
 
@@ -17,6 +18,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
   void initState() {
     super.initState();
     _profile = ApiClient().getProfile(widget.userId);
+    _saveUserId(widget.userId);
+  }
+
+  Future<void> _saveUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userId', userId);
+    print('userId đã được lưu vào SharedPreferences: $userId');
   }
 
   @override
