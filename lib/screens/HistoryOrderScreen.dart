@@ -25,7 +25,6 @@ class _HistoryOrderScreenState extends State<HistoryOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final NumberFormat currencyFormat = NumberFormat('#,##0.000', 'vi_VN');
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Lịch sử đơn hàng"),
@@ -42,6 +41,7 @@ class _HistoryOrderScreenState extends State<HistoryOrderScreen> {
             return const Center(child: Text('Không có đơn hàng nào.'));
           } else {
             List<Order> orders = snapshot.data!;
+            orders.sort((a, b) => b.id.compareTo(a.id));
 
             return ListView.builder(
               itemCount: orders.length,
@@ -81,7 +81,6 @@ class _HistoryOrderScreenState extends State<HistoryOrderScreen> {
                     ),
                     trailing: Icon(Icons.arrow_forward_ios, color: Colors.teal),
                     onTap: () {
-                      // Hiển thị chi tiết đơn hàng khi người dùng nhấn
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -107,7 +106,7 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormat = NumberFormat('#,##0.000', 'vi_VN'); // Định dạng tiền tệ với 3 chữ số thập phân
+    final NumberFormat currencyFormat = NumberFormat('#,##0.000', 'vi_VN');
 
     return Scaffold(
       appBar: AppBar(

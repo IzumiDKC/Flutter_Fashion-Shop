@@ -11,7 +11,7 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://1202-2402-800-6319-94d5-15da-9f9d-5c56-44d3.ngrok-free.app/",
+      baseUrl: "https://48b0-2402-800-6319-94d5-15da-9f9d-5c56-44d3.ngrok-free.app/",
       connectTimeout: 15000,
       receiveTimeout: 3000,
     ),
@@ -151,7 +151,6 @@ class ApiClient {
         ),
       );
 
-      // Kiểm tra trạng thái HTTP
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         print('Response từ server: $data');
@@ -162,7 +161,8 @@ class ApiClient {
             orderDate: '',
             totalPrice: createOrderRequest.totalPrice,
             shippingAddress: createOrderRequest.shippingAddress,
-            status: 'Pending', // Giá trị mặc định
+            status: createOrderRequest.Status,
+          //  status: 'Pending',
             notes: createOrderRequest.notes,
             orderDetails: createOrderRequest.orderDetails.map((e) {
               return OrderDetail(

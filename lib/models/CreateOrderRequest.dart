@@ -6,6 +6,7 @@ class CreateOrderRequest {
   final String shippingAddress;
   final String? notes;
   final List<OrderDetailRequest> orderDetails;
+  final String Status;
 
   CreateOrderRequest({
     required this.userId,
@@ -13,6 +14,7 @@ class CreateOrderRequest {
     required this.shippingAddress,
     this.notes,
     required this.orderDetails,
+    required this.Status,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +24,7 @@ class CreateOrderRequest {
       'shippingAddress': shippingAddress,
       'notes': notes ?? '',
       'orderDetails': orderDetails.map((e) => e.toJson()).toList(),
+      'status': Status,
     };
   }
 }

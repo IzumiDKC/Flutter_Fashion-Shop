@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'dart:convert';
 import '../api/api_Client.dart';
 import '../models/CreateOrderRequest.dart';
 import '../models/OrderDetailRequest.dart';
+import 'CheckoutScreen.dart';
+import 'HistoryOrderScreen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key, required this.cart});
@@ -16,9 +18,35 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final TextEditingController _noteController = TextEditingController();
+  bool _isCartLoaded = false; // Để kiểm soát việc tải dữ liệu
+
+
+  // Phương thức lưu giỏ hàng
+  Future<void> _saveCartToPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cartJson = jsonEncode(widget.cart); // Chuyển danh sách thành JSON
+    await prefs.setString('cart', cartJson);
+  }
+
+// Phương thức tải giỏ hàng
+  Future<void> _loadCartFromPreferences() async {
+    if (_isCartLoaded || widget.cart.isNotEmpty) return; // Không tải lại nếu đã có dữ liệu
+
+    final prefs = await SharedPreferences.getInstance();
+    final cartJson = prefs.getString('cart');
+    if (cartJson != null) {
+      setState(() {
+        widget.cart.clear();
+        widget.cart.addAll(List<Map<String, dynamic>>.from(jsonDecode(cartJson)));
+      });
+    }
+    _isCartLoaded = true; // Đánh dấu đã tải xong
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadCartFromPreferences();
     for (var product in widget.cart) {
       if (product['quantity'] == null || product['quantity'] <= 0) {
         product['quantity'] = 1;
@@ -36,6 +64,7 @@ class _CartScreenState extends State<CartScreen> {
   void _increaseQuantity(int index) {
     setState(() {
       widget.cart[index]['quantity'] += 1;
+      _saveCartToPreferences();
     });
   }
 
@@ -43,6 +72,7 @@ class _CartScreenState extends State<CartScreen> {
     setState(() {
       if (widget.cart[index]['quantity'] > 1) {
         widget.cart[index]['quantity'] -= 1;
+        _saveCartToPreferences();
       }
     });
   }
@@ -50,99 +80,15 @@ class _CartScreenState extends State<CartScreen> {
   void _removeFromCart(int index) {
     setState(() {
       widget.cart.removeAt(index);
+      _saveCartToPreferences();
     });
   }
 
-  Future<String?> _getUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userId');
-  }
-
-  Future<String?> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-
-  void _placeOrder() async {
-    final userId = await _getUserId();
-    final token = await _getToken();
-    print('userId được lấy từ SharedPreferences trong CartScreen: $userId');
-    print('Token được lấy từ SharedPreferences trong CartScreen: $token');
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lỗi: Không tìm thấy userId')),
-      );
-      return;
-    }
-
-    try {
-      final profile = await ApiClient().getProfile(userId);
-      final shippingAddress = profile.address?.toString() ?? "Không có thông tin địa chỉ";
-
-
-      final orderDetailRequests = widget.cart.map((product) {
-        return OrderDetailRequest(
-          productId: product['id'] ?? 0,
-          quantity: product['quantity'] ?? 1,
-        );
-      }).toList();
-
-      print('Danh sách sản phẩm (JSON): ${orderDetailRequests.map((e) => e.toJson()).toList()}');
-
-      final createOrderRequest = CreateOrderRequest(
-        userId: userId,
-        totalPrice: _calculateTotalPrice(),
-        shippingAddress: shippingAddress,
-        notes: _noteController.text.isEmpty ? null : _noteController.text,
-        orderDetails: orderDetailRequests,
-      );
-
-      print('Dữ liệu CreateOrderRequest: ${createOrderRequest.toJson()}');
-
-
-      final order = await ApiClient().createOrder(createOrderRequest);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đơn hàng đã được lưu thành công!')),
-      );
-
-      setState(() {
-        widget.cart.clear();
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi khi lưu đơn hàng: $e')),
-      );
-      print('Loi khi luu don hang: $e');
-    }
-  }
-
-  void _confirmPayment() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Xác nhận thanh toán'),
-          content: const Text('Bạn có chắc chắn muốn thanh toán không?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Có'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _placeOrder();
-              },
-            ),
-            TextButton(
-              child: const Text('Không'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  void _clearCart() {
+    setState(() {
+      widget.cart.clear(); // Làm trống giỏ hàng
+      _saveCartToPreferences();
+    });
   }
 
   @override
@@ -153,20 +99,55 @@ class _CartScreenState extends State<CartScreen> {
         title: const Text('Giỏ Hàng'),
         actions: [
           Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: _confirmPayment,
-                child: const Text('Thanh toán'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.green, padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                  textStyle: const TextStyle(fontSize: 16), // Màu chữ
-                  elevation: 8, // Tạo bóng đổ mạnh mẽ
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0), // Đường viền mềm mại
-                  ),
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (widget.cart.isEmpty) {
+                  // Hiển thị thông báo nếu giỏ hàng trống
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Thông báo'),
+                        content: const Text('Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm để tiếp tục.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Đóng dialog
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CheckoutScreen(
+                        cart: widget.cart,
+                        totalPrice: _calculateTotalPrice(),
+                        shippingAddress: "Nhập địa chỉ",
+                        note: _noteController.text.isEmpty ? null : _noteController.text,
+                        onClearCart: _clearCart,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Thanh toán'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                textStyle: const TextStyle(fontSize: 16),
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-              )
-
+              ),
+            ),
           ),
         ],
       ),
@@ -212,18 +193,6 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 );
               },
-            ),
-          ),
-
-          // Phần ghi chú nằm trên tổng tiền
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: TextField(
-              controller: _noteController,
-              decoration: const InputDecoration(
-                labelText: 'Ghi chú (nếu có)',
-                border: OutlineInputBorder(),
-              ),
             ),
           ),
 
