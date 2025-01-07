@@ -11,8 +11,8 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://b204-14-169-18-85.ngrok-free.app/",
-      connectTimeout: 5000,
+      baseUrl: "https://1202-2402-800-6319-94d5-15da-9f9d-5c56-44d3.ngrok-free.app/",
+      connectTimeout: 15000,
       receiveTimeout: 3000,
     ),
   );
@@ -20,7 +20,7 @@ class ApiClient {
   static final authInterceptor = InterceptorsWrapper(
     onRequest: (options, handler) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token'); // Lấy token từ SharedPreferences
+      String? token = prefs.getString('token');
       print("Token lấy từ SharedPreferences trong API: $token");
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
