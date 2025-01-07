@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:fb88/screens/RegisterScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/AuthModels.dart';
 import '../models/Brand.dart';
+import '../models/CreateOrderRequest.dart';
 import '../models/Order.dart';
 import '../models/Product.dart';
 import '../models/Category.dart';
@@ -11,19 +11,23 @@ import '../models/UserProfile.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://6c67-2402-800-6319-94d5-ed76-d186-371f-2cf2.ngrok-free.app/",
-      connectTimeout: 5000,
+      baseUrl: "https://48b0-2402-800-6319-94d5-15da-9f9d-5c56-44d3.ngrok-free.app/",
+      connectTimeout: 15000,
       receiveTimeout: 3000,
     ),
   );
 
-  static String? token;
-
   static final authInterceptor = InterceptorsWrapper(
-    onRequest: (options, handler) {
+    onRequest: (options, handler) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      print("Token lấy từ SharedPreferences trong API: $token");
       if (token != null) {
         options.headers['Authorization'] = 'Bearer $token';
+      } else {
+        print("Token không tồn tại trong SharedPreferences");
       }
+
       return handler.next(options);
     },
   );
@@ -45,20 +49,8 @@ class ApiClient {
   );
 
   static void setupInterceptors() {
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        options.headers['Authorization'] = 'Bearer ${ApiClient.token}';
-        return handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print('Response: ${response.data}');
-        return handler.next(response);
-      },
-      onError: (error, handler) {
-        print('Error: ${error.message}');
-        return handler.next(error);
-      },
-    ));
+    dio.interceptors.add(authInterceptor);
+    dio.interceptors.add(loggingInterceptor);
   }
 
   Future<List<Product>> getProducts() async {
@@ -104,8 +96,12 @@ class ApiClient {
         throw Exception("Token not found in response");
       }
 
-      token = response.data['token'];
+      String token = response.data['token'];
       print("Token saved: $token");
+
+      // Lưu token vào SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
 
       return response;
     } catch (e) {
@@ -136,6 +132,61 @@ class ApiClient {
     }
   }
 
+  // Create order
+  Future<Order> createOrder(CreateOrderRequest createOrderRequest) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    try {
+      final jsonBody = createOrderRequest.toJson();
+      print('Dữ liệu gửi đến server: $jsonBody');
+
+      final response = await dio.post(
+        "api/Orders/create",
+        data: jsonBody,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = response.data;
+        print('Response từ server: $data');
+
+        if (data.containsKey('id')) {
+          return Order(
+            id: data['id'],
+            orderDate: '',
+            totalPrice: createOrderRequest.totalPrice,
+            shippingAddress: createOrderRequest.shippingAddress,
+            status: createOrderRequest.Status,
+          //  status: 'Pending',
+            notes: createOrderRequest.notes,
+            orderDetails: createOrderRequest.orderDetails.map((e) {
+              return OrderDetail(
+                name: '', // Giá trị mặc định
+                originalPrice: 0.0,
+                finalPrice: 0.0,
+                quantity: e.quantity,
+              );
+            }).toList(),
+          );
+        } else {
+          throw Exception('Server response missing required fields.');
+        }
+      }
+
+
+      print('Response từ server: ${response.data}');
+      return Order.fromJson(response.data);
+    } catch (e) {
+      print('Lỗi khi gửi request: $e');
+      throw Exception("Error during POST order request: $e");
+    }
+  }
+
   Future<List<Order>> getUserOrders(String userId) async {
     try {
       final response = await dio.get("api/Orders/user-orders/$userId");
@@ -147,7 +198,17 @@ class ApiClient {
     }
   }
 
-  /*
+
+  // Update user profile
+  /*Future<void> updateProfile(
+      String userId, UpdatedProfile updatedProfile) async {
+    try {
+      await dio.put("api/account/update-profile/$userId",
+          data: updatedProfile.toJson());
+    } catch (e) {
+      throw Exception("Error during PUT profile update request: $e");
+    }
+  }
 
   // Get products on sale
   Future<List<Product>> getProductsOnSale() async {
@@ -162,41 +223,35 @@ class ApiClient {
   }
 
   // Get user orders
-
-
-
-  Future<void> updateProfile(
-      String userId, UpdatedProfile updatedProfile) async {
+  Future<List<Order>> getUserOrders(String userId) async {
     try {
-      await dio.put("api/account/update-profile/$userId",
-          data: updatedProfile.toJson());
+      final response = await dio.get("api/Orders/user-orders/$userId");
+      List<Order> orders =
+          (response.data as List).map((e) => Order.fromJson(e)).toList();
+      return orders;
     } catch (e) {
-      throw Exception("Error during PUT profile update request: $e");
+      throw Exception("Error during GET user orders request: $e");
     }
-  }
-  // Create order
-  Future<Order> createOrder(CreateOrderRequest createOrderRequest) async {
-    try {
-      final response = await dio.post("api/Orders/create",
-          data: createOrderRequest.toJson());
-      return Order.fromJson(response.data);
-    } catch (e) {
-      throw Exception("Error during POST order request: $e");
-    }
-  }
-}*/
+  }*/
+
+
 
   void main() {
+
+    // Initialize Dio interceptors
     ApiClient.setupInterceptors();
 
+    // Example usage of API methods
     final apiClient = ApiClient();
 
+    // Get products
     apiClient.getProducts().then((products) {
       print('Fetched Products: $products');
     }).catchError((e) {
       print('Request failed: $e');
     });
 
+    // Get categories
     apiClient.getCategories().then((categories) {
       print('Fetched Categories: $categories');
     }).catchError((e) {

@@ -5,7 +5,8 @@ import '../api/api_client.dart';
 import 'ProductScreen.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({super.key, required this.onAddToCart});
+  final Function(dynamic) onAddToCart;
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -51,7 +52,6 @@ class _SearchScreenState extends State<SearchScreen> {
     if (cachedProducts != null &&
         cachedBrands != null &&
         cachedCategories != null) {
-      // Dữ liệu tồn tại trong cache, sử dụng ngay
       setState(() {
         allProducts = json.decode(cachedProducts);
         displayedProducts = allProducts;
@@ -161,8 +161,17 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Products'),
+        title: const Text(
+          'Tìm Sản Phẩm',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.teal,
       ),
+
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -319,7 +328,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemCount: displayedProducts.length,
                 itemBuilder: (context, index) {
                   final product = displayedProducts[index];
-                  return ProductItem(product: product);
+                  return ProductItem(product: product,
+                    onAddToCart: () => widget.onAddToCart(product),);
                 },
               ),
             ),

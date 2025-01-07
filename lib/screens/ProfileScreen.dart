@@ -3,7 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'HistoryOrderScreen.dart';
 import 'LoginScreen.dart';
+import 'MemberRankScreen.dart';
 import 'ProfileDetailScreen.dart';
+import 'SupportScreen.dart';
 
 class ProfileOptionCard extends StatelessWidget {
   final String title;
@@ -172,7 +174,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: "Xếp hạng thành viên",
                 description: "Xem xếp hạng tiêu dùng của bạn.",
                 icon: Icons.star,
-                onClick: () {},
+                onClick: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MemberRankScreen(userId: userId),
+                    ),
+                  );
+                },
               ),
               ProfileOptionCard(
                 title: "Phương thức thanh toán",
@@ -184,7 +193,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: "Trung tâm hỗ trợ",
                 description: "Liên hệ hỗ trợ nếu cần giúp đỡ.",
                 icon: Icons.help,
-                onClick: () {},
+                onClick: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SupportScreen(userId: userId),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               Align(
